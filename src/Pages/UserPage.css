@@ -1,0 +1,665 @@
+/* User Page Styles - Modern & Minimalist */
+.user-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding-top: 2rem;
+}
+
+/* Card Styles - Matching existing design */
+.user-page .bg-white {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.user-page .bg-white:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Typography */
+.user-page h1 {
+  color: #212529;
+  font-weight: 700;
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.user-page h2 {
+  color: #343a40;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.user-page h3 {
+  color: #495057;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.user-page p {
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+/* Button Styles - Matching existing design */
+.user-page button {
+  font-family: inherit;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.user-page .bg-blue-600 {
+  background-color: #007bff;
+  color: white;
+}
+
+.user-page .bg-blue-600:hover {
+  background-color: #0056b3;
+}
+
+.user-page .bg-green-600 {
+  background-color: #28a745;
+  color: white;
+}
+
+.user-page .bg-green-600:hover {
+  background-color: #1e7e34;
+}
+
+.user-page .bg-gray-200 {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.user-page .bg-gray-200:hover {
+  background-color: #dee2e6;
+}
+
+/* Input Styles */
+.user-page input,
+.user-page textarea,
+.user-page select {
+  font-family: inherit;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-page input:focus,
+.user-page textarea:focus,
+.user-page select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Progress Elements */
+.user-page .bg-gray-200 {
+  background-color: #e9ecef;
+}
+
+.user-page .bg-blue-500 {
+  background-color: #007bff;
+}
+
+.user-page .bg-green-500 {
+  background-color: #28a745;
+}
+
+/* Text Colors */
+.user-page .text-gray-900 {
+  color: #212529;
+}
+
+.user-page .text-gray-700 {
+  color: #495057;
+}
+
+.user-page .text-gray-600 {
+  color: #6c757d;
+}
+
+.user-page .text-gray-500 {
+  color: #adb5bd;
+}
+
+.user-page .text-blue-600 {
+  color: #007bff;
+}
+
+.user-page .text-green-600 {
+  color: #28a745;
+}
+
+.user-page .text-red-600 {
+  color: #dc3545;
+}
+
+/* Layout Utilities */
+.user-page .max-w-7xl {
+  max-width: 1200px;
+}
+
+.user-page .grid {
+  display: grid;
+}
+
+.user-page .grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.user-page .grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.user-page .grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.user-page .gap-4 {
+  gap: 1rem;
+}
+
+.user-page .gap-6 {
+  gap: 1.5rem;
+}
+
+.user-page .gap-8 {
+  gap: 2rem;
+}
+
+.user-page .space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.user-page .space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.user-page .space-y-8 > * + * {
+  margin-top: 2rem;
+}
+
+/* Flexbox Utilities */
+.user-page .flex {
+  display: flex;
+}
+
+.user-page .items-center {
+  align-items: center;
+}
+
+.user-page .justify-between {
+  justify-content: space-between;
+}
+
+.user-page .justify-center {
+  justify-content: center;
+}
+
+.user-page .flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* Padding & Margin */
+.user-page .p-4 {
+  padding: 1rem;
+}
+
+.user-page .p-6 {
+  padding: 1.5rem;
+}
+
+.user-page .px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.user-page .py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.user-page .py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.user-page .mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.user-page .mb-4 {
+  margin-bottom: 1rem;
+}
+
+.user-page .mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.user-page .mb-8 {
+  margin-bottom: 2rem;
+}
+
+/* Border & Radius */
+.user-page .border {
+  border: 1px solid #dee2e6;
+}
+
+.user-page .border-t {
+  border-top: 1px solid #dee2e6;
+}
+
+.user-page .rounded-lg {
+  border-radius: 12px;
+}
+
+.user-page .rounded-md {
+  border-radius: 6px;
+}
+
+.user-page .rounded-full {
+  border-radius: 9999px;
+}
+
+/* Text Utilities */
+.user-page .text-center {
+  text-align: center;
+}
+
+.user-page .text-sm {
+  font-size: 0.875rem;
+}
+
+.user-page .text-xs {
+  font-size: 0.75rem;
+}
+
+.user-page .font-semibold {
+  font-weight: 600;
+}
+
+.user-page .font-bold {
+  font-weight: 700;
+}
+
+.user-page .font-medium {
+  font-weight: 500;
+}
+
+.user-page .truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .user-page {
+    padding-top: 1rem;
+  }
+  
+  .user-page .max-w-7xl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .user-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .user-page .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .user-page .grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .user-page .lg\\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .user-page .lg\\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .user-page .md\\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .user-page .md\\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Loading Animation */
+.user-page .animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Remove all book images and replace with text-based cards */
+.user-page img[alt*="Cover"],
+.user-page img[src*="covers.openlibrary.org"],
+.user-page img[src*="placeholder"] {
+  display: none;
+}
+
+/* Book card without images - text-only design */
+.user-page .book-item {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.user-page .book-item:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.user-page .book-title {
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.user-page .book-author {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.user-page .book-subjects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.user-page .book-subject {
+  background: #f8f9fa;
+  color: #495057;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  border: 1px solid #e9ecef;
+}
+
+/* Empty states */
+.user-page .empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.user-page .empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Table styles */
+.user-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-page th,
+.user-page td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.user-page th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.user-page tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Progress bars */
+.user-page .progress-bar {
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.user-page .progress-fill {
+  background-color: #007bff;
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Focus styles for accessibility */
+.user-page *:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Smooth transitions */
+.user-page * {
+  transition: colors 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+/* Modal Styles */
+.user-page .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.user-page .modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 1rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.user-page .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.user-page .modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.user-page .modal-close:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+/* Drag and drop styles */
+.user-page .drag-area {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.user-page .drag-area:hover,
+.user-page .drag-area.drag-active {
+  border-color: #007bff;
+  background-color: #f8f9ff;
+}
+
+.user-page .drag-area.drag-active {
+  border-color: #0056b3;
+  background-color: #e7f3ff;
+}
+
+/* Form improvements */
+.user-page .form-group {
+  margin-bottom: 1rem;
+}
+
+.user-page .form-label {
+  display: block;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.user-page .form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-page .form-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.user-page .form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Button improvements */
+.user-page .btn-group {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+.user-page .btn-secondary {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  background-color: white;
+  color: #495057;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-page .btn-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.user-page .btn-primary {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-page .btn-primary:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.user-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.user-page .btn-success {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background-color: #28a745;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-page .btn-success:hover {
+  background-color: #1e7e34;
+}
+
+/* Info box styles */
+.user-page .info-box {
+  background-color: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.user-page .info-box h4 {
+  color: #0056b3;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.user-page .info-box p {
+  color: #004085;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-page .info-box p:last-child {
+  margin-bottom: 0;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}

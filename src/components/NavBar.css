@@ -1,0 +1,87 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-family: 'Inter', sans-serif;
+}
+
+.logo {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #2577cf;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  color: #111;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 700;  /* Bolder nav links */
+  letter-spacing: 0.01em;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.nav-links a:hover {
+  color: #007bff;
+  text-shadow: 0 0 1px rgba(0, 123, 255, 0.3); /* subtle glow effect */
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-actions input[type="text"] {
+  padding: 0.45rem 0.85rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.nav-btn {
+  padding: 0.45rem 0.85rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.2s ease;
+}
+.login-btn {
+  background-color: transparent;
+  color: #2577cf;
+  border: 1px solid #2577cf;
+}
+.login-btn:hover {
+  background-color: #2577cf;
+  color: white;
+}
+
+.get-started-btn {
+  background-color: #2577cf;
+  color: white;
+}
+.get-started-btn:hover {
+  background-color: #005dc1;
+}
+
+.signout-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+.signout-btn:hover {
+  background-color: #c0392b;
+}

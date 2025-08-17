@@ -1,0 +1,7 @@
+<!-- /public/BookBuddyLogo.svg -->
+<svg width="150" height="40" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <g fill="#007bff">
+    <path d="M20 10c-6 0-10 4-10 10v30c0 6 4 10 10 10h5v10l10-10h45c6 0 10-4 10-10V20c0-6-4-10-10-10H20zm0 5h70c2.8 0 5 2.2 5 5v30c0 2.8-2.2 5-5 5H35l-7.5 7.5V50H20c-2.8 0-5-2.2-5-5V20c0-2.8 2.2-5 5-5z"/>
+    <text x="100" y="50" font-family="Inter, sans-serif" font-size="28" font-weight="700">BookBuddy</text>
+  </g>
+</svg>

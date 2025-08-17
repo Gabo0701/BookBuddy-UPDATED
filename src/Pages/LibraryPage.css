@@ -1,0 +1,45 @@
+.library-page {
+  font-family: 'Inter', sans-serif;
+  padding: 3rem 2rem;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.library-top {
+  max-width: 1200px;
+  margin: 0 auto 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.library-top h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.library-top .emoji {
+  font-size: 1.5rem;
+  vertical-align: middle;
+}
+
+.library-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.empty-msg {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin-top: 4rem;
+}

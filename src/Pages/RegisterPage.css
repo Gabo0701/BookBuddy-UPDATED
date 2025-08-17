@@ -1,0 +1,140 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  background-color: #f0f4f8;
+}
+
+.register-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.register-form h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.register-form label {
+  margin-top: 0.8rem;
+  display: block;
+  font-weight: 500;
+}
+
+.register-form input {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.2rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+}
+
+.strength-bar-wrapper {
+  height: 8px;
+  background-color: #eee;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+.strength-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.password-checklist {
+  list-style: none;
+  padding-left: 1rem;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.password-checklist li {
+  margin: 0.2rem 0;
+}
+
+.password-checklist li.valid {
+  color: green;
+  font-weight: bold;
+}
+
+.register-btn {
+  margin-top: 1.2rem;
+  width: 100%;
+  padding: 0.7rem;
+  background-color: #1d72b8;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.register-btn:hover:not(:disabled) {
+  background-color: #125c99;
+}
+
+.error {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+.home-button {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background-color: #1d72b8;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #125c99;
+}
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  box-sizing: border-box;
+  padding-right: 2.5rem;
+}
+
+.toggle-visibility {
+  position: absolute;
+  top: 60%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  font-size: 1.2rem;
+  z-index: 1;
+}
+.register-put,
+.password-wrapper input {
+  box-sizing: border-box;
+}
+.register-form input,
+.password-wrapper input {
+  width:        100%;
+  box-sizing:   border-box;
+}

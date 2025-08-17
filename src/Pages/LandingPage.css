@@ -1,0 +1,136 @@
+.landing-page {
+  font-family: 'Segoe UI', sans-serif;
+  color: #111;
+  background: #f9fafb;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  height: 30px;
+}
+
+.search-bar {
+  flex-grow: 1;
+  max-width: 500px;
+  margin: 0 2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid #e5e7eb;
+  font-size: 16px;
+}
+
+.icons span {
+  font-size: 22px;
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+.hero {
+  text-align: center;
+  padding: 5rem 1rem;
+}
+
+.hero h2 {
+  font-size: 3rem;
+  font-weight: 400;
+}
+
+.hero .highlight {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  color: #64748b;
+}
+
+.cta-btn {
+  margin-top: 2rem;
+  padding: 1rem 2rem;
+  background: #0f172a;
+  color: white;
+  border-radius: 9999px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.genres {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.genre-list {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.genre-card {
+  background: white;
+  padding: 1.5rem;
+  width: 120px;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+
+.genre-card .icon {
+  font-size: 1.5rem;
+}
+
+.featured {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.book-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.book-card {
+  background: white;
+  width: 200px;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.book-card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.book-card .title {
+  font-weight: 600;
+  padding: 0.5rem;
+}
+
+.book-card .author {
+  color: #64748b;
+  font-size: 0.9rem;
+  padding-bottom: 0.5rem;
+}
