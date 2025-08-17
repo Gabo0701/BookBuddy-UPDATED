@@ -171,7 +171,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.get('/user/me');
+      const response = await api.get('/v1/auth/me');
       setCache(cacheKey, response.data);
       return response.data;
     } catch (error) {
@@ -188,7 +188,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.patch('/user/profile', updates);
+      const response = await api.patch('/v1/auth/profile', updates);
       setCache('user_me', response.data);
       return response.data;
     } catch (error) {
@@ -214,7 +214,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.get('/library');
+      const response = await api.get('/v1/library');
       setCache(cacheKey, response.data);
       return response.data;
     } catch (error) {
@@ -241,7 +241,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.get('/library/lists');
+      const response = await api.get('/v1/library/lists');
       setCache(cacheKey, response.data);
       return response.data;
     } catch (error) {
@@ -263,7 +263,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.post('/library/lists', listData);
+      const response = await api.post('/v1/library/lists', listData);
       cache.delete(getCacheKey('lists'));
       return response.data;
     } catch (error) {
@@ -290,7 +290,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.post(`/library/lists/${listId}/books`, bookData);
+      const response = await api.post(`/v1/library/lists/${listId}/books`, bookData);
       cache.delete(getCacheKey('lists'));
       cache.delete(getCacheKey('library_overview'));
       return response.data;
@@ -314,7 +314,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.get(`/library/reading-log?limit=${limit}`);
+      const response = await api.get(`/v1/library/reading-log?limit=${limit}`);
       setCache(cacheKey, response.data);
       return response.data;
     } catch (error) {
@@ -335,7 +335,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.post('/library/reading-log', entry);
+      const response = await api.post('/v1/library/reading-log', entry);
       cache.delete(getCacheKey('reading_log_50'));
       return response.data;
     } catch (error) {
@@ -353,7 +353,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.patch('/library/goal', goalData);
+      const response = await api.patch('/v1/library/goal', goalData);
       cache.delete(getCacheKey('library_overview'));
       return response.data;
     } catch (error) {
@@ -395,7 +395,7 @@ export const libraryService = {
     }
 
     try {
-      const response = await api.get('/library/recommendations');
+      const response = await api.get('/v1/library/recommendations');
       setCache(cacheKey, response.data);
       return response.data;
     } catch (error) {

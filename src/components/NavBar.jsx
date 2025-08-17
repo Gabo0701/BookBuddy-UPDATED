@@ -42,6 +42,8 @@ export default function NavBar() {
       <div className="nav-actions">
         <input
           type="text"
+          id="navbar-search"
+          name="navbarSearch"
           placeholder="Search books..."
           onKeyDown={(e) => {
             if (e.key === 'Enter') navigate(`/search?q=${e.target.value}`);

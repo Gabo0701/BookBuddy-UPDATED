@@ -12,6 +12,7 @@ import { globalLimiter, authLimiter } from './middleware/rateLimiters.js';
 import requestId from './middleware/requestId.js';
 import logRequests from './middleware/logRequests.js';
 import authRoutes from './routes/authRoutes.js';
+import bookRoutes from './routes/bookRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 
@@ -35,6 +36,7 @@ app.use(sanitize());
 app.use(globalLimiter);
 app.use('/api/v1', healthRoutes);
 app.use('/api/v1/auth', authLimiter, authRoutes);
+app.use('/api/v1/library', bookRoutes);
 
 app.use(errorHandler);
 

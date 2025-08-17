@@ -10,17 +10,23 @@ export const AuthContext = createContext({
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
+  const [accessToken, setAccessToken] = useState(() => {
+    return localStorage.getItem('accessToken');
+  });
 
-  // On mount, see if we already have a cookie/session
+  // Store token in localStorage when it changes
   useEffect(() => {
     if (accessToken) {
+      localStorage.setItem('accessToken', accessToken);
       whoAmI(accessToken)
         .then((data) => setUser(data.user))
         .catch(() => {
           setUser(null);
           setAccessToken(null);
+          localStorage.removeItem('accessToken');
         });
+    } else {
+      localStorage.removeItem('accessToken');
     }
   }, [accessToken]);
 

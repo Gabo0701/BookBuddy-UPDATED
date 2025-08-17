@@ -18,7 +18,7 @@ export default function Header() {
       <div className="search-signin">
         <div className="search-bar">
           <FiSearch className="search-icon" />
-          <input type="text" placeholder="Search books, authors..." />
+          <input id="header-search" name="headerSearch" type="text" placeholder="Search books, authors..." />
         </div>
         <Link to="/signin" className="sign-in-btn">
           <FaUser /> <span>Sign In</span>

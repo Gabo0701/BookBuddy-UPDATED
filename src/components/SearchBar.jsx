@@ -18,6 +18,8 @@ const SearchBar = () => {
       <FiSearch className="search-icon" />
       <input
         type="text"
+        id="search-bar"
+        name="searchBar"
         placeholder="Search books..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}

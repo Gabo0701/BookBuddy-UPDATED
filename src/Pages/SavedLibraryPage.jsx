@@ -60,6 +60,8 @@ export default function SearchPage() {
       <form className="search-form" onSubmit={handleSubmit}>
         <input
           type="text"
+          id="saved-library-search"
+          name="savedLibrarySearch"
           placeholder="Search books…"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
@@ -78,7 +80,7 @@ export default function SearchPage() {
                 src={
                   cover_id
                     ? `https://covers.openlibrary.org/b/id/${cover_id}-M.jpg`
-                    : 'https://via.placeholder.com/150x200?text=No+Cover'
+                    : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='200' viewBox='0 0 150 200'%3E%3Crect width='150' height='200' fill='%23f0f0f0'/%3E%3Ctext x='75' y='100' text-anchor='middle' dy='.3em' font-family='Arial' font-size='14' fill='%23666'%3ENo Cover%3C/text%3E%3C/svg%3E"
                 }
                 alt={title}
               />
