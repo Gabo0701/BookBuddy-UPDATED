@@ -1,0 +1,11 @@
+NODE_ENV=development
+PORT=5000
+CLIENT_URL=http://localhost:5173
+MONGO_URI=replace-me
+JWT_ACCESS_SECRET=replace-me-32chars-min
+JWT_REFRESH_SECRET=replace-me-32chars-min
+SMTP_HOST=replace-me
+SMTP_PORT=587
+SMTP_USER=replace-me
+SMTP_PASS=replace-me
+MAIL_FROM="BookBuddy <no-reply@yourdomain>"
