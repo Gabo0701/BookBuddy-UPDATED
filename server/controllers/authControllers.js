@@ -7,6 +7,7 @@ import User from '../models/User.js';
 import RefreshToken from '../models/RefreshToken.js';
 import EmailVerificationToken from '../models/EmailVerificationToken.js';
 import PasswordResetToken from '../models/PasswordResetToken.js';
+import AuthEvent from '../models/AuthEvent.js';
 import sendMail from '../utils/mailer.js';
 
 import {
@@ -129,6 +130,9 @@ export async function register(req, res, next) {
     // AUDIT 
     audit('auth.register.success', { userId: user.id, username, email }, req);
 
+    // Log auth event to MongoDB
+    await AuthEvent.create({ user: user.id, action: 'register' });
+
     const jti = newJti();
     const accessToken = signAccess(user.id);
     const refreshToken = signRefresh(user.id, jti);
@@ -191,6 +195,9 @@ export async function login(req, res, next) {
     // AUDIT
     audit('auth.login.success', { userId: user.id }, req);
 
+    // Log auth event to MongoDB
+    await AuthEvent.create({ user: user.id, action: 'login' });
+
     return res.cookie('refreshToken', refreshToken, cookieOpts).json({ accessToken });
   } catch (err) {
     return next(err);
@@ -246,6 +253,16 @@ export async function logout(req, res) {
   }
   audit('auth.logout', {}, req);
 
+  // Log auth event to MongoDB if we have user info
+  if (token) {
+    try {
+      const payload = jwt.verify(token, refreshTokenSecret, { issuer, audience });
+      await AuthEvent.create({ user: payload.sub, action: 'logout' });
+    } catch {
+      // ignore during logout
+    }
+  }
+
   return res
     .clearCookie('refreshToken', { ...cookieOpts, maxAge: undefined })
     .json({ message: 'Logged out' });
@@ -256,6 +273,9 @@ export async function logoutAll(req, res, next) {
     await revokeAllUserRefreshTokens(req.user.id);
 
     audit('auth.logout_all', {}, req);
+
+    // Log auth event to MongoDB
+    await AuthEvent.create({ user: req.user.id, action: 'logout' });
 
     return res
       .clearCookie('refreshToken', { ...cookieOpts, maxAge: undefined })
