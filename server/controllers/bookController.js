@@ -6,7 +6,8 @@ import mongoose from 'mongoose';
 export const getLibrary = async (req, res) => {
   try {
     const userId = req.user.id;
-    const books = await Book.find({ userId });
+    const books = await Book.find({ user: userId });
+    console.log('Found books for user:', userId, books.length);
     
     // Mock library structure for now
     const library = {
@@ -44,7 +45,7 @@ export const getLibrary = async (req, res) => {
 // GET /api/books
 export const getBooks = async (req, res) => {
   try {
-    const books = await Book.find({ userId: req.user.id });
+    const books = await Book.find({ user: req.user.id });
     res.json(books);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -53,12 +54,80 @@ export const getBooks = async (req, res) => {
 
 // POST /api/books
 export const addBook = async (req, res) => {
-  const newBook = new Book({ ...req.body, userId: req.user.id });
   try {
+    const { title, author, key, coverId, olid } = req.body;
+    console.log('Adding book:', { title, author, key, userId: req.user.id });
+    
+    // Check if book already exists for this user
+    const existingBook = await Book.findOne({ key, user: req.user.id });
+    if (existingBook) {
+      console.log('Book already exists:', existingBook);
+      return res.status(200).json(existingBook);
+    }
+    
+    const newBook = new Book({ 
+      title, 
+      author, 
+      key, 
+      coverId, 
+      olid, 
+      user: req.user.id 
+    });
+    
     const savedBook = await newBook.save();
+    console.log('Book saved successfully:', savedBook);
     res.status(201).json(savedBook);
   } catch (error) {
+    console.error('Error saving book:', error);
+    if (error.code === 11000) {
+      return res.status(200).json({ message: 'Book already saved' });
+    }
     res.status(400).json({ message: error.message });
+  }
+};
+
+// POST /api/books/favorite/:key
+export const toggleFavorite = async (req, res) => {
+  try {
+    const { key } = req.params;
+    let book = await Book.findOne({ key, user: req.user.id });
+    
+    if (!book) {
+      const { title, author, coverId, olid } = req.body;
+      book = new Book({ 
+        title, 
+        author, 
+        key, 
+        coverId, 
+        olid, 
+        user: req.user.id,
+        isFavorite: true
+      });
+      await book.save();
+    } else {
+      book.isFavorite = !book.isFavorite;
+      await book.save();
+    }
+    
+    res.json(book);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// DELETE /api/books/key/:key
+export const deleteBookByKey = async (req, res) => {
+  try {
+    const { key } = req.params;
+    const deletedBook = await Book.findOneAndDelete({ key, user: req.user.id });
+    
+    if (!deletedBook) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+    
+    res.json({ message: 'Book deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 

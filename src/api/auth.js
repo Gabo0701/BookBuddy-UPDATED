@@ -47,6 +47,10 @@ export function whoAmI(accessToken) {
 
 export function logout(accessToken) {
   const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+  // Clear user-specific localStorage data
+  localStorage.removeItem('savedBooks');
+  localStorage.removeItem('favoriteBooks');
+  localStorage.removeItem('readingLog');
   return request('/logout', { method: 'POST', headers });
 }
 

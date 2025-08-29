@@ -19,14 +19,40 @@ export function AuthProvider({ children }) {
     if (accessToken) {
       localStorage.setItem('accessToken', accessToken);
       whoAmI(accessToken)
-        .then((data) => setUser(data.user))
+        .then(async (data) => {
+          setUser(data.user);
+          // Load user's books from MongoDB and sync to localStorage
+          try {
+            const response = await fetch('/api/v1/library/books', {
+              credentials: 'include',
+              headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            if (response.ok) {
+              const books = await response.json();
+              const savedBooks = books.filter(book => !book.isFavorite);
+              const favoriteBooks = books.filter(book => book.isFavorite);
+              localStorage.setItem('savedBooks', JSON.stringify(savedBooks));
+              localStorage.setItem('favoriteBooks', JSON.stringify(favoriteBooks));
+            }
+          } catch (error) {
+            console.error('Failed to load user books:', error);
+          }
+        })
         .catch(() => {
           setUser(null);
           setAccessToken(null);
           localStorage.removeItem('accessToken');
+          // Clear user-specific data on auth failure
+          localStorage.removeItem('savedBooks');
+          localStorage.removeItem('favoriteBooks');
+          localStorage.removeItem('readingLog');
         });
     } else {
       localStorage.removeItem('accessToken');
+      // Clear user-specific data when no token
+      localStorage.removeItem('savedBooks');
+      localStorage.removeItem('favoriteBooks');
+      localStorage.removeItem('readingLog');
     }
   }, [accessToken]);
 
@@ -36,4 +62,3 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
-

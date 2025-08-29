@@ -6,7 +6,7 @@ export default async function connectDB() {
     console.error('❌ MONGO_URI not set in .env');
     process.exit(1);
   }
-
+   
   const connectWithRetry = async () => {
     const maxRetries = 5;
     let retries = 0;

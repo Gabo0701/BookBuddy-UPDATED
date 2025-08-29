@@ -1,10 +1,5 @@
-// server/utils/audit.js
 import logger from './logger.js';
 
-/**
- * Write a structured security/audit log.
- * Avoid secrets. We include reqId, ip and user agent for traceability.
- */
 function base(req) {
   return {
     reqId: req?.id,

@@ -1,4 +1,3 @@
-// server/models/User.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
@@ -30,7 +29,7 @@ const userSchema = new mongoose.Schema({
     default: false
   }
 }, {
-  timestamps: true
+  timestamps: true   // adds createdAt & updatedAt
 });
 
 // 🔍 Compare passwords in login flow

@@ -233,6 +233,9 @@ export async function refreshToken(req, res) {
     // AUDIT 
     audit('auth.refresh.rotate', { userId: payload.sub, oldJti: payload.jti, newJti: jti }, req);
 
+    // Log auth event to MongoDB
+    await AuthEvent.create({ user: payload.sub, action: 'refresh_token' });
+
     return res.cookie('refreshToken', newRefresh, cookieOpts).json({ accessToken: newAccess });
   } catch (err) {
     auditWarn('auth.refresh.denied', { reason: 'invalid_jwt' }, req);
@@ -353,6 +356,9 @@ export async function verifyEmail(req, res, next) {
 
     audit('email.verify.success', { userId: user.id }, req);
 
+    // Log auth event to MongoDB
+    await AuthEvent.create({ user: user.id, action: 'email_verified' });
+
     return res.json({ message: 'Email verified' });
   } catch (err) {
     return next(err);
@@ -420,6 +426,9 @@ export async function resetPassword(req, res, next) {
 
     doc.usedAt = new Date();
     await doc.save();
+
+    // Log auth event to MongoDB
+    await AuthEvent.create({ user: user.id, action: 'password_reset' });
 
     return res.json({ message: 'Password updated. Please log in again.' });
   } catch (err) {

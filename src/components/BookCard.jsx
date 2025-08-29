@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart, FaRegHeart, FaTrash, FaStar, FaRegStar } from "react-icons/fa";
+import { saveBook, toggleBookFavorite, deleteBookByKey } from "../api/books.js";
 import "./BookCard.css";
 
 const BookCard = ({ 
@@ -27,37 +28,81 @@ const BookCard = ({
     setIsFavorite(!!isFav);
   }, [book.key]);
 
-  const toggleSave = () => {
-    const savedBooks = JSON.parse(localStorage.getItem("savedBooks")) || [];
-    if (isSaved) {
-      const updated = savedBooks.filter((b) => b.key !== book.key);
-      localStorage.setItem("savedBooks", JSON.stringify(updated));
-      setIsSaved(false);
-      // Dispatch custom event for UserPage to listen
-      window.dispatchEvent(new CustomEvent('bookRemoved', { detail: book }));
-    } else {
-      localStorage.setItem("savedBooks", JSON.stringify([...savedBooks, { ...book, coverId: book.coverId || book.cover_id }]));
-      setIsSaved(true);
-      // Dispatch custom event for UserPage to listen
-      window.dispatchEvent(new CustomEvent('bookSaved', { detail: book }));
+  const toggleSave = async () => {
+    try {
+      if (isSaved) {
+        await deleteBookByKey(book.key);
+        setIsSaved(false);
+        // Also update localStorage for immediate UI feedback
+        const savedBooks = JSON.parse(localStorage.getItem("savedBooks")) || [];
+        const updated = savedBooks.filter((b) => b.key !== book.key);
+        localStorage.setItem("savedBooks", JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('bookRemoved', { detail: book }));
+      } else {
+        await saveBook({
+          title: book.title,
+          author: book.author,
+          key: book.key,
+          coverId: book.coverId || book.cover_id,
+          olid: book.olid
+        });
+        setIsSaved(true);
+        // Also update localStorage for immediate UI feedback
+        const savedBooks = JSON.parse(localStorage.getItem("savedBooks")) || [];
+        localStorage.setItem("savedBooks", JSON.stringify([...savedBooks, { ...book, coverId: book.coverId || book.cover_id }]));
+        window.dispatchEvent(new CustomEvent('bookSaved', { detail: book }));
+      }
+    } catch (error) {
+      console.error('Error saving book:', error);
+      // Fallback to localStorage only if API fails
+      const savedBooks = JSON.parse(localStorage.getItem("savedBooks")) || [];
+      if (isSaved) {
+        const updated = savedBooks.filter((b) => b.key !== book.key);
+        localStorage.setItem("savedBooks", JSON.stringify(updated));
+        setIsSaved(false);
+      } else {
+        localStorage.setItem("savedBooks", JSON.stringify([...savedBooks, { ...book, coverId: book.coverId || book.cover_id }]));
+        setIsSaved(true);
+      }
     }
   };
 
-  const toggleFavorite = () => {
-    const favorites = JSON.parse(localStorage.getItem("favoriteBooks")) || [];
-    if (isFavorite) {
-      const updated = favorites.filter((b) => b.key !== book.key);
-      localStorage.setItem("favoriteBooks", JSON.stringify(updated));
-      setIsFavorite(false);
-      window.dispatchEvent(new CustomEvent('favoriteRemoved', { detail: book }));
-    } else {
-      localStorage.setItem("favoriteBooks", JSON.stringify([...favorites, { ...book, coverId: book.coverId || book.cover_id }]));
-      setIsFavorite(true);
-      window.dispatchEvent(new CustomEvent('favoriteAdded', { detail: book }));
-    }
-    
-    if (onToggleFavorite) {
-      onToggleFavorite(book, !isFavorite);
+  const toggleFavorite = async () => {
+    try {
+      await toggleBookFavorite(book.key, {
+        title: book.title,
+        author: book.author,
+        coverId: book.coverId || book.cover_id,
+        olid: book.olid
+      });
+      setIsFavorite(!isFavorite);
+      
+      // Update localStorage for immediate UI feedback
+      const favorites = JSON.parse(localStorage.getItem("favoriteBooks")) || [];
+      if (isFavorite) {
+        const updated = favorites.filter((b) => b.key !== book.key);
+        localStorage.setItem("favoriteBooks", JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('favoriteRemoved', { detail: book }));
+      } else {
+        localStorage.setItem("favoriteBooks", JSON.stringify([...favorites, { ...book, coverId: book.coverId || book.cover_id }]));
+        window.dispatchEvent(new CustomEvent('favoriteAdded', { detail: book }));
+      }
+      
+      if (onToggleFavorite) {
+        onToggleFavorite(book, !isFavorite);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      // Fallback to localStorage only if API fails
+      const favorites = JSON.parse(localStorage.getItem("favoriteBooks")) || [];
+      if (isFavorite) {
+        const updated = favorites.filter((b) => b.key !== book.key);
+        localStorage.setItem("favoriteBooks", JSON.stringify(updated));
+        setIsFavorite(false);
+      } else {
+        localStorage.setItem("favoriteBooks", JSON.stringify([...favorites, { ...book, coverId: book.coverId || book.cover_id }]));
+        setIsFavorite(true);
+      }
     }
   };
 
@@ -65,23 +110,31 @@ const BookCard = ({
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = () => {
-    if (onDelete) {
-      onDelete(book, listType);
-    } else if (listType === 'saved') {
-      // Handle saved books deletion directly if no onDelete handler
-      const savedBooks = JSON.parse(localStorage.getItem('savedBooks')) || [];
-      const updated = savedBooks.filter((b) => b.key !== book.key);
-      localStorage.setItem('savedBooks', JSON.stringify(updated));
-      setIsSaved(false);
-      window.dispatchEvent(new CustomEvent('bookRemoved', { detail: book }));
-    } else if (listType === 'favorites') {
-      // Handle favorites deletion directly if no onDelete handler
-      const favorites = JSON.parse(localStorage.getItem('favoriteBooks')) || [];
-      const updated = favorites.filter((b) => b.key !== book.key);
-      localStorage.setItem('favoriteBooks', JSON.stringify(updated));
-      setIsFavorite(false);
-      window.dispatchEvent(new CustomEvent('favoriteRemoved', { detail: book }));
+  const confirmDelete = async () => {
+    try {
+      if (onDelete) {
+        onDelete(book, listType);
+      } else {
+        // Delete from MongoDB
+        await deleteBookByKey(book.key);
+        
+        // Update localStorage
+        if (listType === 'saved') {
+          const savedBooks = JSON.parse(localStorage.getItem('savedBooks')) || [];
+          const updated = savedBooks.filter((b) => b.key !== book.key);
+          localStorage.setItem('savedBooks', JSON.stringify(updated));
+          setIsSaved(false);
+          window.dispatchEvent(new CustomEvent('bookRemoved', { detail: book }));
+        } else if (listType === 'favorites') {
+          const favorites = JSON.parse(localStorage.getItem('favoriteBooks')) || [];
+          const updated = favorites.filter((b) => b.key !== book.key);
+          localStorage.setItem('favoriteBooks', JSON.stringify(updated));
+          setIsFavorite(false);
+          window.dispatchEvent(new CustomEvent('favoriteRemoved', { detail: book }));
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting book:', error);
     }
     setShowDeleteConfirm(false);
   };
