@@ -1,6 +1,6 @@
 # Authentication Guide
 
-BookBuddy uses a secure JWT-based authentication system with refresh tokens and comprehensive security measures.
+BookBuddy uses a secure JWT-based authentication system with refresh tokens, email verification codes, and comprehensive security measures.
 
 ## Overview
 
@@ -8,9 +8,10 @@ The authentication system includes:
 - JWT access tokens (short-lived, 15 minutes)
 - Refresh tokens (long-lived, 7 days, stored as HTTP-only cookies)
 - Password hashing with bcrypt
-- Email verification
+- **6-digit email verification codes** (NEW)
 - Password reset functionality
 - Email reminder for forgotten usernames
+- **Account deletion with audit trail** (NEW)
 
 ## Authentication Flow
 
@@ -30,28 +31,36 @@ const response = await register({
 2. Server validates input (username uniqueness, email format, password strength)
 3. Password is hashed with bcrypt (12 rounds)
 4. User record is created in database
-5. JWT tokens are generated
-6. Refresh token is stored as HTTP-only cookie
-7. Access token is returned to client
+5. **User is redirected to email verification page** (NEW)
+6. **6-digit verification code is sent via Mailtrap** (NEW)
+7. **User enters code to complete login** (NEW)
 
-### 2. User Login
+### 2. User Login with Email Verification
 
 ```javascript
-// Frontend
-const response = await login({
-  emailOrUsername: 'john@example.com',
-  password: 'SecurePass123!'
+// Frontend - Step 1: Navigate to verification
+navigate('/login-verification', { 
+  state: { emailOrUsername: 'john@example.com' } 
 });
+
+// Step 2: Send verification code
+const response = await sendLoginVerification('john@example.com');
+
+// Step 3: Verify code
+const authData = await verifyLoginCode('john@example.com', '123456');
 ```
 
 **Process:**
-1. User submits login credentials
-2. Server finds user by email or username
-3. Password is verified against stored hash
-4. Old refresh tokens are revoked (logout everywhere)
-5. New JWT tokens are generated
-6. Refresh token is stored as HTTP-only cookie
-7. Access token is returned to client
+1. User enters email/username on login page
+2. **User is redirected to verification page** (NEW)
+3. **6-digit code is generated and sent via email** (NEW)
+4. **User enters verification code** (NEW)
+5. Server validates code (unused, not expired)
+6. Old refresh tokens are revoked (logout everywhere)
+7. New JWT tokens are generated
+8. Refresh token is stored as HTTP-only cookie
+9. Access token is returned to client
+10. **User is redirected to home page** (NEW)
 
 ### 3. Token Refresh
 
@@ -82,33 +91,34 @@ const user = await whoAmI(accessToken);
 3. User ID is extracted from token payload
 4. User data is returned or endpoint is accessed
 
-## Password Requirements
+## Email Verification System
 
-Passwords must meet these criteria:
-- At least 8 characters
-- One uppercase letter (A–Z)
-- One lowercase letter (a–z)
-- One number (0–9)
-- One special character (!@#$%^&*)
+### Send Login Verification Code (NEW)
+```javascript
+await sendLoginVerification('user@example.com');
+```
 
-## Email Verification
+### Verify Login Code (NEW)
+```javascript
+const authData = await verifyLoginCode('user@example.com', '123456');
+```
 
-### Request Verification
+**6-Digit Code Process:**
+1. User requests verification code
+2. **6-digit random code is generated**
+3. **Code is stored in MongoDB with 10-minute expiration**
+4. **Professional HTML email is sent via Mailtrap**
+5. User enters code on verification page
+6. Server validates code (exists, unused, not expired)
+7. **Code is marked as used to prevent reuse**
+8. User's `isEmailVerified` flag is set to true
+9. **JWT tokens are generated and user is logged in**
+
+### Legacy Email Verification (Still Available)
 ```javascript
 await requestEmailVerification(accessToken);
-```
-
-### Verify Email
-```javascript
 await verifyEmail(token);
 ```
-
-**Process:**
-1. User requests email verification
-2. Unique token is generated and stored (24-hour expiration)
-3. Email is sent with verification link
-4. User clicks link, token is validated
-5. User's `isEmailVerified` flag is set to true
 
 ## Password Reset
 
@@ -143,6 +153,24 @@ await requestEmailReminder('username');
 3. Email is sent with user's email address
 4. Security: Always returns success message regardless of username existence
 
+## Account Deletion System (NEW)
+
+```javascript
+// Request account deletion with reason
+const response = await api.post('/v1/auth/delete-request', { 
+  reason: 'No longer using the app' 
+});
+```
+
+**Account Deletion Process:**
+1. **Two-step confirmation modal** with reason selection
+2. **Predefined reasons** + custom input option
+3. **Final warning** showing what will be deleted
+4. **Complete data cleanup**: User, books, tokens, auth events
+5. **Audit trail**: Deletion request stored in MongoDB
+6. **Automatic logout**: Session cleared after deletion
+7. **Redirect to home page**
+
 ## Security Features
 
 ### Token Security
@@ -156,6 +184,13 @@ await requestEmailReminder('username');
 - **Password validation**: Enforced complexity requirements
 - **Rate limiting**: Prevents brute force attacks
 
+### Email Verification Security (NEW)
+- **6-digit random codes**: Cryptographically secure generation
+- **Time-based expiration**: Codes expire after 10 minutes
+- **Single-use codes**: Marked as used after successful verification
+- **MongoDB TTL indexes**: Automatic cleanup of expired codes
+- **Rate limiting**: Applied to verification endpoints
+
 ### Request Security
 - **CSRF protection**: Validates CSRF tokens on state-changing operations
 - **Rate limiting**: Different limits for different endpoints
@@ -166,44 +201,59 @@ await requestEmailReminder('username');
 - **Mongoose sanitization**: Prevents NoSQL injection
 - **Audit logging**: All authentication events are logged
 - **Token cleanup**: Expired tokens are cleaned up automatically
+- **Account deletion audit**: Deletion requests stored before processing
 
-## Frontend Implementation
+## Modern Verification UI (NEW)
+- **Gradient background** with professional design
+- **Card-based layout** with rounded corners and shadows
+- **Large code input** with monospace font and letter spacing
+- **Real-time validation** and button state changes
+- **Smooth transitions** and hover effects
+- **Mobile responsive** design
 
-### AuthContext
-```javascript
-const { user, accessToken, setAccessToken, logout } = useContext(AuthContext);
+## API Endpoints
+
+### New Endpoints Added:
+```
+POST /api/v1/auth/send-login-verification
+POST /api/v1/auth/verify-login-code
+POST /api/v1/auth/delete-request
 ```
 
-### PrivateRoute Component
-```javascript
-<PrivateRoute>
-  <ProtectedComponent />
-</PrivateRoute>
-```
+### Updated User Flow:
+1. **Registration** → Email Verification → Home Page
+2. **Login** → Email Verification → Home Page
+3. **Account Deletion** → Confirmation → Logout → Home Page
 
-### Automatic Token Refresh
-The system automatically refreshes tokens when they expire, providing seamless user experience.
+## Database Collections
 
-## Error Handling
+### New Collections Added:
+- **VerificationCode**: Stores 6-digit codes with expiration
+- **AccountDeletionRequest**: Audit trail for account deletions
 
-### Common Authentication Errors
-- `401 Unauthorized`: Invalid or expired token
-- `403 Forbidden`: Valid token but insufficient permissions
-- `409 Conflict`: Username or email already exists
-- `422 Unprocessable Entity`: Validation errors
-- `429 Too Many Requests`: Rate limit exceeded
+### Updated Collections:
+- **User**: Enhanced with email verification status
+- **AuthEvent**: Logs verification and deletion events
 
-### Frontend Error Handling
-```javascript
-try {
-  const response = await login(credentials);
-} catch (error) {
-  if (error.message.includes('verify')) {
-    // Show email verification prompt
-  } else {
-    // Show error message
-  }
-}
+## Environment Variables
+
+```env
+# JWT Configuration
+JWT_ACCESS_SECRET=your_strong_secret_key
+JWT_REFRESH_SECRET=your_strong_refresh_secret
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Email Configuration (Mailtrap)
+SMTP_HOST=sandbox.smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=your_mailtrap_username
+SMTP_PASS=your_mailtrap_password
+MAIL_FROM="BookBuddy <no-reply@bookbuddy.local>"
+
+# Token Lifetimes
+EMAIL_VERIFY_TTL_HOURS=24
+PASSWORD_RESET_TTL_MINUTES=30
 ```
 
 ## Best Practices
@@ -216,23 +266,34 @@ try {
 6. **Use HTTPS in production**
 7. **Implement proper logout (clear tokens)**
 8. **Monitor authentication events**
+9. **Use 6-digit codes for better UX** (NEW)
+10. **Implement proper session cleanup on account deletion** (NEW)
 
-## Environment Variables
+## Development Features
 
-```env
-# JWT Configuration
-JWT_ACCESS_SECRET=your_strong_secret_key
-JWT_REFRESH_SECRET=your_strong_refresh_secret
-JWT_ACCESS_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
+- **Development bypass code**: `123456` for testing
+- **Mailtrap integration**: All emails visible in sandbox
+- **Comprehensive error handling**: User-friendly messages
+- **Audit logging**: All auth events tracked in MongoDB
 
-# Email Configuration
-SMTP_HOST=sandbox.smtp.mailtrap.io
-SMTP_PORT=2525
-SMTP_USER=your_mailtrap_username
-SMTP_PASS=your_mailtrap_password
+## Error Handling
 
-# Token Lifetimes
-EMAIL_VERIFY_TTL_HOURS=24
-PASSWORD_RESET_TTL_MINUTES=30
+### Common Authentication Errors
+- `401 Unauthorized`: Invalid or expired token/code
+- `403 Forbidden`: Valid token but insufficient permissions
+- `409 Conflict`: Username or email already exists
+- `422 Unprocessable Entity`: Validation errors
+- `429 Too Many Requests`: Rate limit exceeded
+
+### Frontend Error Handling
+```javascript
+try {
+  const response = await verifyLoginCode(email, code);
+} catch (error) {
+  if (error.message.includes('expired')) {
+    // Show resend code option
+  } else {
+    // Show error message
+  }
+}
 ```
