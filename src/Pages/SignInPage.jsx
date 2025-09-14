@@ -23,27 +23,16 @@ export default function SignInPage() {
   async function onSubmit(e) {
     e.preventDefault();
     if (submitting) return;
-    setSubmitting(true);
-    setErr('');
-    setNeedsVerify(false);
-
-    try {
-      const res = await login({ emailOrUsername: emailOrUsername.trim(), password });
-      if (res?.error) {
-        const msg = String(res.error);
-        if (msg.toLowerCase().includes('verify')) setNeedsVerify(true);
-        else setErr(msg);
-        return;
-      }
-      if (res?.accessToken) {
-        setAccessToken(res.accessToken);
-        navigate(redirectTo, { replace: true });
-      } else setErr('Unexpected response from server.');
-    } catch (error) {
-      setErr(error.message || 'Sign in failed. Please try again.');
-    } finally {
-      setSubmitting(false);
+    
+    if (!emailOrUsername.trim() || !password) {
+      setErr('Please fill in all fields');
+      return;
     }
+
+    // Navigate to verification page
+    navigate('/login-verification', { 
+      state: { emailOrUsername: emailOrUsername.trim() } 
+    });
   }
 
   async function onResendVerification() {

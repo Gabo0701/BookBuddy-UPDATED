@@ -2,23 +2,26 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { libraryService } from '../services/library';
+import { api } from '../services/api';
+import { logout, requestAccountDeletion } from '../api/auth';
 
 
 import { ListGrid } from '../components/ListCard';
 import ReadingLogTable from '../components/ReadingLogTable';
-import StatsPanel from '../components/StatsPanel';
+
 import BookList from '../components/BookList';
 import './UserPage.css';
 
 const UserPage = () => {
-  const { user: authUser } = useContext(AuthContext);
+  const { user: authUser, setUser: setAuthUser, setAccessToken } = useContext(AuthContext);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [library, setLibrary] = useState(null);
   const [readingLog, setReadingLog] = useState([]);
-  const [recommendations, setRecommendations] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
 
   useEffect(() => {
@@ -65,11 +68,11 @@ const UserPage = () => {
       const favoriteBooks = JSON.parse(localStorage.getItem('favoriteBooks')) || [];
       const readingLogEntries = JSON.parse(localStorage.getItem('readingLog')) || [];
       
-      const [userData, libraryData, logData, recData] = await Promise.all([
+      const [userData, libraryData, logData] = await Promise.all([
         libraryService.getMe(),
         libraryService.getLibrary(),
         libraryService.getReadingLog(10),
-        libraryService.getRecommendations()
+
       ]);
 
       // Integrate saved books into library data - Always ensure saved books list exists
@@ -175,7 +178,7 @@ const UserPage = () => {
       setUser(userData);
       setLibrary(libraryData);
       setReadingLog(readingLogEntries); // Use localStorage data instead of API data
-      setRecommendations(recData);
+
     } catch (err) {
       console.error('Failed to load user data:', err);
       setError('Failed to load your library. Please try again.');
@@ -515,6 +518,31 @@ const UserPage = () => {
     }
   };
 
+  const handleDeleteAccount = async (reason) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      
+      // Store deletion request
+      await requestAccountDeletion(reason, accessToken);
+      
+      // Logout user and clear session
+      await logout(accessToken);
+      setAuthUser(null);
+      setAccessToken(null);
+      
+      // Clear all local data
+      localStorage.clear();
+      
+      // Redirect to landing page
+      navigate('/');
+      
+      alert('Your account has been deleted successfully.');
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      alert('Failed to delete account. Please try again.');
+    }
+  };
+
   const clearAllData = () => {
     localStorage.removeItem('savedBooks');
     localStorage.removeItem('favoriteBooks');
@@ -664,85 +692,72 @@ const UserPage = () => {
 
           {/* Right Column */}
           <div className="space-y-8">
-            {/* Stats & Insights */}
-            <StatsPanel stats={library?.stats} />
 
-            {/* Recommendations */}
-            <RecommendationsCard recommendations={recommendations} navigate={navigate} />
+
+
 
             {/* Profile Card */}
-            <ProfileCard user={user} />
+            <ProfileCard user={user} onDeleteAccount={() => {
+              setShowDeleteModal(true);
+              setTimeout(() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+              }, 100);
+            }} />
           </div>
         </div>
       </div>
 
-
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <DeleteAccountModal 
+          user={user}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleDeleteAccount}
+        />
+      )}
     </div>
   );
 };
 
-// Recommendations Component
-const RecommendationsCard = ({ recommendations, navigate, className = '' }) => {
-  if (!recommendations || recommendations.length === 0) {
-    return (
-      <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommendations</h3>
-        <div className="text-center py-4">
-          <div className="text-gray-400 text-2xl mb-2">🔍</div>
-          <p className="text-gray-500 text-sm">Add more books to get personalized recommendations</p>
-        </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Recommendations</h3>
-        <button 
-          onClick={() => navigate('/search')}
-          className="text-blue-600 hover:text-blue-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded px-2 py-1"
-        >
-          See More
-        </button>
-      </div>
-      
-      <div className="space-y-3">
-        {recommendations.slice(0, 3).map((book) => (
-          <div key={book.id} className="flex gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
-            <div className="w-12 h-16 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded shadow-sm flex items-center justify-center flex-shrink-0">
-              <span className="text-lg text-indigo-600">📖</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-gray-900 text-sm truncate">
-                {book.title}
-              </h4>
-              <p className="text-xs text-gray-600 mb-1">
-                by {book.authors?.join(', ') || 'Unknown Author'}
-              </p>
-              {book.subjects && book.subjects.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {book.subjects.slice(0, 2).map((subject, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
-                    >
-                      {subject}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 // Profile Card Component
-const ProfileCard = ({ user, className = '' }) => {
+const ProfileCard = ({ user, onDeleteAccount, className = '' }) => {
   const [isEditing, setIsEditing] = useState(false);
+
+  const handleExportLibrary = () => {
+    try {
+      const savedBooks = JSON.parse(localStorage.getItem('savedBooks')) || [];
+      const favoriteBooks = JSON.parse(localStorage.getItem('favoriteBooks')) || [];
+      const readingLog = JSON.parse(localStorage.getItem('readingLog')) || [];
+      
+      const exportData = {
+        exportDate: new Date().toISOString(),
+        user: {
+          email: user?.email || 'unknown@bookbuddy.com',
+          displayName: user?.displayName || 'Book Lover'
+        },
+        savedBooks,
+        favoriteBooks,
+        readingLog,
+        totalBooks: savedBooks.length + favoriteBooks.length,
+        totalReadingEntries: readingLog.length
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `bookbuddy-library-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export library:', error);
+      alert('Failed to export library. Please try again.');
+    }
+  };
 
   return (
     <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
@@ -790,10 +805,16 @@ const ProfileCard = ({ user, className = '' }) => {
 
         {/* Actions */}
         <div className="space-y-2 pt-4 border-t border-gray-100">
-          <button className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-2 px-3 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+          <button 
+            onClick={handleExportLibrary}
+            className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-2 px-3 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+          >
             📤 Export Library (JSON)
           </button>
-          <button className="w-full text-left text-sm text-red-600 hover:text-red-700 py-2 px-3 rounded hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
+          <button 
+            onClick={onDeleteAccount}
+            className="w-full text-left text-sm text-red-600 hover:text-red-700 py-2 px-3 rounded hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+          >
             🗑️ Delete Account
           </button>
         </div>
@@ -1017,6 +1038,152 @@ const ImportCSVModal = ({ onClose, onImport }) => {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+};
+
+// Delete Account Modal Component
+const DeleteAccountModal = ({ user, onClose, onConfirm }) => {
+  const [reason, setReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
+  const [step, setStep] = useState(1);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const predefinedReasons = [
+    'No longer using the app',
+    'Privacy concerns',
+    'Found a better alternative',
+    'Too many notifications',
+    'App is too slow',
+    'Missing features I need',
+    'Other'
+  ];
+
+  const handleReasonSubmit = () => {
+    if (!reason) {
+      alert('Please select a reason');
+      return;
+    }
+    if (reason === 'Other' && !customReason.trim()) {
+      alert('Please provide a custom reason');
+      return;
+    }
+    setStep(2);
+  };
+
+  const handleFinalConfirm = async () => {
+    setIsDeleting(true);
+    const finalReason = reason === 'Other' ? customReason : reason;
+    await onConfirm(finalReason);
+    setIsDeleting(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        {step === 1 ? (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-red-600">Delete Account</h3>
+              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-gray-700 mb-4">We're sorry to see you go! Could you tell us why you're deleting your account?</p>
+              
+              <div className="space-y-2">
+                {predefinedReasons.map((reasonOption) => (
+                  <label key={reasonOption} className="flex items-center">
+                    <input
+                      type="radio"
+                      name="reason"
+                      value={reasonOption}
+                      checked={reason === reasonOption}
+                      onChange={(e) => setReason(e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">{reasonOption}</span>
+                  </label>
+                ))}
+              </div>
+              
+              {reason === 'Other' && (
+                <textarea
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                  placeholder="Please tell us more..."
+                  className="w-full mt-3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="3"
+                />
+              )}
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReasonSubmit}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Continue
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-red-600">Final Confirmation</h3>
+              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+            </div>
+            
+            <div className="mb-6">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center mb-2">
+                  <span className="text-red-600 text-xl mr-2">⚠️</span>
+                  <span className="font-medium text-red-800">This action cannot be undone!</span>
+                </div>
+                <p className="text-red-700 text-sm">
+                  Deleting your account will permanently remove:
+                </p>
+                <ul className="text-red-700 text-sm mt-2 ml-4 list-disc">
+                  <li>All saved books and favorites</li>
+                  <li>Complete reading log history</li>
+                  <li>Account settings and preferences</li>
+                  <li>All personal data</li>
+                </ul>
+              </div>
+              
+              <p className="text-gray-700 text-sm">
+                Account: <strong>{user?.email}</strong>
+              </p>
+              <p className="text-gray-700 text-sm">
+                Reason: <strong>{reason === 'Other' ? customReason : reason}</strong>
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep(1)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                disabled={isDeleting}
+              >
+                Back
+              </button>
+              <button
+                onClick={handleFinalConfirm}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Account'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -73,7 +73,10 @@ export default function RegisterPage() {
         email:    data.email,
         password: data.password
       });
-      navigate('/');
+      // Navigate to verification page with email
+      navigate('/login-verification', { 
+        state: { emailOrUsername: data.email } 
+      });
     } catch (err) {
       setErrors({ api: err.message });
     }

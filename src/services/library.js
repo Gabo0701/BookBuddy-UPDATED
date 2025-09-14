@@ -8,7 +8,7 @@ import {
   createListItem,
   createReadingLogEntry,
   createGoal,
-  createStats,
+
   ReadStatus,
   ListType
 } from '../types/library.js';
@@ -138,24 +138,7 @@ const mockGoal = createGoal({
   currentPages: 1248
 });
 
-const mockStats = createStats({
-  totalBooks: 15,
-  totalPages: 4250,
-  booksThisYear: 3,
-  pagesThisYear: 1248,
-  averageRating: 4.2,
-  topGenres: [
-    { name: 'Self-help', count: 8 },
-    { name: 'Psychology', count: 5 },
-    { name: 'Philosophy', count: 3 }
-  ],
-  topAuthors: [
-    { name: 'James Clear', count: 2 },
-    { name: 'Mark Manson', count: 2 },
-    { name: 'Stephen R. Covey', count: 1 }
-  ],
-  readingStreak: 12
-});
+
 
 // Service functions
 export const libraryService = {
@@ -206,7 +189,6 @@ export const libraryService = {
     if (MOCK_MODE) {
       const library = {
         lists: mockLists,
-        stats: mockStats,
         goal: mockGoal
       };
       setCache(cacheKey, library);
@@ -222,7 +204,6 @@ export const libraryService = {
       // Fallback to mock
       const library = {
         lists: mockLists,
-        stats: mockStats,
         goal: mockGoal
       };
       return library;
@@ -362,92 +343,5 @@ export const libraryService = {
     }
   },
 
-  // Recommendations
-  async getRecommendations() {
-    const cacheKey = 'recommendations';
-    const cached = getCache(cacheKey);
-    if (cached) return cached;
 
-    if (MOCK_MODE) {
-      // Mock recommendations based on user's subjects
-      const recommendations = [
-        createBook({
-          id: 'rec_1',
-          key: '/works/OL82563W',
-          title: 'Think and Grow Rich',
-          authors: ['Napoleon Hill'],
-          publishYear: 1937,
-          subjects: ['Self-help', 'Success', 'Psychology'],
-          description: 'The classic guide to success'
-        }),
-        createBook({
-          id: 'rec_2',
-          key: '/works/OL15832983W',
-          title: 'How to Win Friends and Influence People',
-          authors: ['Dale Carnegie'],
-          publishYear: 1936,
-          subjects: ['Self-help', 'Communication', 'Psychology'],
-          description: 'Timeless advice for building relationships'
-        })
-      ];
-      setCache(cacheKey, recommendations);
-      return recommendations;
-    }
-
-    try {
-      const response = await api.get('/v1/library/recommendations');
-      setCache(cacheKey, response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Failed to fetch recommendations:', error);
-      // Fallback: generate recommendations from Open Library
-      return await this.generateRecommendations();
-    }
-  },
-
-  async generateRecommendations() {
-    try {
-      // Get user's favorite subjects from their library
-      const library = await this.getLibrary();
-      const subjects = new Set();
-      
-      library.lists.forEach(list => {
-        list.books.forEach(item => {
-          if (item.book?.subjects) {
-            item.book.subjects.forEach(subject => subjects.add(subject));
-          }
-        });
-      });
-
-      const recommendations = [];
-      const subjectArray = Array.from(subjects).slice(0, 3);
-
-      for (const subject of subjectArray) {
-        try {
-          const searchResult = await openLibraryApi.search(`subject:${subject}`, 2);
-          if (searchResult.docs) {
-            searchResult.docs.forEach(doc => {
-              recommendations.push(createBook({
-                id: `rec_${doc.key}`,
-                key: doc.key,
-                title: doc.title,
-                authors: doc.author_name || [],
-                publishYear: doc.first_publish_year,
-                subjects: doc.subject || [],
-                description: doc.subtitle || '',
-                openLibraryId: doc.key?.replace('/works/', '')
-              }));
-            });
-          }
-        } catch (error) {
-          console.error(`Failed to get recommendations for ${subject}:`, error);
-        }
-      }
-
-      return recommendations.slice(0, 6);
-    } catch (error) {
-      console.error('Failed to generate recommendations:', error);
-      return [];
-    }
-  }
 };

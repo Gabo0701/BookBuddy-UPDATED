@@ -22,13 +22,7 @@ export const getLibrary = async (req, res) => {
           addedAt: book.createdAt
         }))
       }],
-      stats: {
-        totalBooks: books.length,
-        totalPages: books.reduce((sum, book) => sum + (book.pageCount || 0), 0),
-        booksThisYear: books.filter(book => 
-          book.createdAt && book.createdAt.getFullYear() === new Date().getFullYear()
-        ).length
-      },
+
       goal: {
         year: new Date().getFullYear(),
         targetBooks: 24,
@@ -196,12 +190,3 @@ export const addReadingLogEntry = async (req, res) => {
   }
 };
 
-// GET /api/v1/library/recommendations
-export const getRecommendations = async (req, res) => {
-  try {
-    const recommendations = [];
-    res.json(recommendations);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};

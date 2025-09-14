@@ -13,7 +13,8 @@ import {
 import {
   register, login, refreshToken, logout, getMe, logoutAll,
   requestEmailVerification, verifyEmail,
-  requestPasswordReset, resetPassword, requestEmailReminder
+  requestPasswordReset, resetPassword, requestEmailReminder,
+  requestAccountDeletion, sendLoginVerification, verifyLoginCode
 } from '../controllers/authControllers.js';
 
 const router = express.Router();
@@ -79,6 +80,32 @@ router.post('/request-email-reminder',
   [ body('username').notEmpty().withMessage('Username is required') ],
   validateRequest,
   requestEmailReminder
+);
+
+// Account deletion (protected)
+router.post('/delete-request',
+  authenticateToken,
+  [ body('reason').notEmpty().withMessage('Reason is required') ],
+  validateRequest,
+  requestAccountDeletion
+);
+
+// Login verification (public)
+router.post('/send-login-verification',
+  loginLimiter,
+  [ body('email').notEmpty().withMessage('Email or username is required') ],
+  validateRequest,
+  sendLoginVerification
+);
+
+router.post('/verify-login-code',
+  loginLimiter,
+  [ 
+    body('email').notEmpty().withMessage('Email or username is required'),
+    body('code').isLength({ min: 6, max: 6 }).withMessage('Code must be 6 digits')
+  ],
+  validateRequest,
+  verifyLoginCode
 );
 
 export default router;

@@ -9,7 +9,7 @@ import {
   deleteBookByKey,
   getReadingLog,
   addReadingLogEntry,
-  getRecommendations,
+
 } from '../controllers/bookController.js';
 import protect from '../middleware/authMiddleware.js';
 
@@ -27,7 +27,7 @@ router.put('/books/:id', updateBook);
 router.delete('/books/:id', deleteBook);
 router.get('/reading-log', getReadingLog);
 router.post('/reading-log', addReadingLogEntry);
-router.get('/recommendations', getRecommendations);
+
 
 // Test endpoint
 router.get('/test', async (req, res) => {

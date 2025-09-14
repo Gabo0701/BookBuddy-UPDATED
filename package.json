@@ -10,9 +10,9 @@
     "dev:legacy": "concurrently \"npm run dev:server:legacy\" \"npm run dev:client\"",
     "dev:client": "vite",
     "build": "vite build",
-    "lint": "eslint .",
     "preview": "vite preview",
-    "start:legacy": "node --openssl-legacy-provider start-server.js"
+    "start:legacy": "node --openssl-legacy-provider start-server.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",

@@ -94,15 +94,3 @@ export const createGoal = (data = {}) => ({
   ...data
 });
 
-// Stats
-export const createStats = (data = {}) => ({
-  totalBooks: 0,
-  totalPages: 0,
-  booksThisYear: 0,
-  pagesThisYear: 0,
-  averageRating: 0,
-  topGenres: [],
-  topAuthors: [],
-  readingStreak: 0,
-  ...data
-});
