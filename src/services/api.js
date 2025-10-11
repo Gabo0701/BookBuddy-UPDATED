@@ -1,28 +1,24 @@
-// API Service Layer for BookBuddy
+// src/services/api/api.js
+const API_BASE = import.meta.env.VITE_API_BASE;
+const MOCK_MODE = String(import.meta.env.VITE_MOCK_MODE).toLowerCase() === 'true';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
-const MOCK_MODE = import.meta.env.VITE_MOCK_MODE === 'true';
+if (!API_BASE) {
+  console.error('VITE_API_BASE is missing. Create .env at project root and rebuild.');
+}
 
 class ApiError extends Error {
   constructor(message, status, data = null) {
     super(message);
     this.name = 'ApiError';
-    this.status = status;
+    this.status = status ?? 0;
     this.data = data;
   }
 }
 
-// Get auth token from localStorage
-const getAuthToken = () => {
-  return localStorage.getItem('accessToken');
-};
+const getAuthToken = () => localStorage.getItem('accessToken');
 
-// Base fetch wrapper
 const apiFetch = async (endpoint, options = {}) => {
-  if (MOCK_MODE) {
-    // Return mock response in mock mode
-    return { ok: true, status: 200, data: null };
-  }
+  if (MOCK_MODE) return { ok: true, status: 200, data: null };
 
   const token = getAuthToken();
   const config = {
@@ -35,94 +31,23 @@ const apiFetch = async (endpoint, options = {}) => {
   };
 
   try {
-    const response = await fetch(`${API_BASE}${endpoint}`, config);
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new ApiError(
-        data.message || 'API request failed',
-        response.status,
-        data
-      );
-    }
-
-    return { ...response, data };
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw new ApiError('Network error', 0, error);
+    const res = await fetch(`${API_BASE}${endpoint}`, config);
+    let data = null;
+    try { data = await res.json(); } catch {}
+    if (!res.ok) throw new ApiError(data?.message || `HTTP ${res.status}`, res.status, data);
+    return { ...res, data };
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError('Network error', 0, err);
   }
 };
 
-// HTTP Methods
 export const api = {
-  get: (endpoint, options = {}) => 
-    apiFetch(endpoint, { method: 'GET', ...options }),
-  
-  post: (endpoint, body, options = {}) =>
-    apiFetch(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      ...options,
-    }),
-  
-  patch: (endpoint, body, options = {}) =>
-    apiFetch(endpoint, {
-      method: 'PATCH',
-      body: JSON.stringify(body),
-      ...options,
-    }),
-  
-  put: (endpoint, body, options = {}) =>
-    apiFetch(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-      ...options,
-    }),
-  
-  delete: (endpoint, options = {}) =>
-    apiFetch(endpoint, { method: 'DELETE', ...options }),
+  get:    (e, o = {}) => apiFetch(e, { method: 'GET',  ...o }),
+  post:   (e, b, o={}) => apiFetch(e, { method: 'POST', body: JSON.stringify(b), ...o }),
+  patch:  (e, b, o={}) => apiFetch(e, { method: 'PATCH', body: JSON.stringify(b), ...o }),
+  put:    (e, b, o={}) => apiFetch(e, { method: 'PUT',   body: JSON.stringify(b), ...o }),
+  delete: (e, o = {}) => apiFetch(e, { method: 'DELETE', ...o }),
 };
 
-// Open Library API helpers
-export const openLibraryApi = {
-  search: async (query, limit = 10) => {
-    try {
-      const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}`
-      );
-      return await response.json();
-    } catch (error) {
-      console.error('Open Library search error:', error);
-      return { docs: [] };
-    }
-  },
-
-  getWork: async (workId) => {
-    try {
-      const response = await fetch(`https://openlibrary.org/works/${workId}.json`);
-      return await response.json();
-    } catch (error) {
-      console.error('Open Library work error:', error);
-      return null;
-    }
-  },
-
-  getAuthor: async (authorId) => {
-    try {
-      const response = await fetch(`https://openlibrary.org/authors/${authorId}.json`);
-      return await response.json();
-    } catch (error) {
-      console.error('Open Library author error:', error);
-      return null;
-    }
-  },
-
-  getCover: (coverId, size = 'M') => {
-    if (!coverId) return null;
-    return `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg`;
-  },
-};
-
-export { ApiError, MOCK_MODE };
+export const wakeServer = () => apiFetch('/health').catch(() => {});
