@@ -4,6 +4,7 @@
 // Read base from env (supports both names)
 const API_BASE = (import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 if (!API_BASE) console.error('Missing VITE_API_BASE. Create a root .env and rebuild.');
+import { api } from '../services/api';
 
 // Final base for all auth routes
 // If API_BASE = .../api        -> BASE = .../api/auth
@@ -38,6 +39,9 @@ export function register({ username, email, password }) {
     method: 'POST',
     body: JSON.stringify({ username, email, password }),
   });
+}
+export function register({ username, email, password }) {
+  return api.post('/auth/register', { username, email, password }).then(r => r.data);
 }
 
 export function login({ emailOrUsername, password }) {
