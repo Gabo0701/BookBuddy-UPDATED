@@ -1,153 +1,175 @@
-// src/Pages/RegisterPage.jsx
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { register } from '../api/auth.js';
+import { Link, useNavigate } from 'react-router-dom';
+import { register } from '../api/auth';
 import './RegisterPage.css';
 
-export default function RegisterPage() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPw, setShowPw] = useState(false);
-  const [err, setErr] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const navigate = useNavigate();
+const passwordRequirements = [
+  { label: 'At least 8 characters',           test: (pwd) => pwd.length >= 8 },
+  { label: 'One uppercase letter (A–Z)',      test: (pwd) => /[A-Z]/.test(pwd) },
+  { label: 'One lowercase letter (a–z)',      test: (pwd) => /[a-z]/.test(pwd) },
+  { label: 'One number (0–9)',                test: (pwd) => /\d/.test(pwd) },
+  { label: 'One special character (!@#$%^&*)', test: (pwd) => /[!@#$%^&*]/.test(pwd) },
+];
 
-  // Password strength validation
-  const getPasswordStrength = (pwd) => {
-    let score = 0;
-    if (pwd.length >= 8) score++;
-    if (/[A-Z]/.test(pwd)) score++;
-    if (/[a-z]/.test(pwd)) score++;
-    if (/\d/.test(pwd)) score++;
-    if (/[^\w\s]/.test(pwd)) score++;
-    return score;
+function calculateStrength(pwd) {
+  let score = 0;
+  passwordRequirements.forEach(({ test }) => test(pwd) && score++);
+  const percent = (score / passwordRequirements.length) * 100;
+  let color = '#e74c3c';
+  if (percent > 40 && percent < 80) color = '#f1c40f';
+  if (percent >= 80) color = '#2ecc71';
+  return { percent, color };
+}
+
+export default function RegisterPage() {
+  const navigate = useNavigate();
+  const [data, setData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [strength, setStrength] = useState({ percent: 0, color: '#e74c3c' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setData((d) => ({ ...d, [name]: value }));
+    if (name === 'password') setStrength(calculateStrength(value));
+    if (errors.api) setErrors((e) => ({ ...e, api: '' }));
   };
 
-  const passwordStrength = getPasswordStrength(password);
-  const strengthColors = ['#ff4444', '#ff8800', '#ffaa00', '#88cc00', '#00cc44'];
-  const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+  const reqStatus = passwordRequirements.map((r) => ({
+    ...r,
+    ok: r.test(data.password)
+  }));
+  const confirmOk = data.password && data.password === data.confirmPassword;
+  const usernameValid = data.username.trim().length >= 3 && /^[a-zA-Z0-9_]+$/.test(data.username);
+  const isFormValid =
+    data.username.trim() &&
+    usernameValid &&
+    data.email.trim() &&
+    reqStatus.every((r) => r.ok) &&
+    confirmOk;
 
-  async function onSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (submitting) return;
 
-    if (!username.trim() || !email.trim() || !password) {
-      setErr('Please fill in all fields');
-      return;
-    }
-
-    if (passwordStrength < 3) {
-      setErr('Password must be stronger (at least 8 characters with uppercase, lowercase, and numbers)');
-      return;
-    }
+    const newErrors = {};
+    if (!data.username.trim())         newErrors.username       = 'Username is required';
+    if (!usernameValid)                newErrors.username       = 'Username must be 3-20 characters, letters/numbers/underscores only';
+    if (!data.email.includes('@'))     newErrors.email          = 'Valid email required';
+    if (!reqStatus.every((r) => r.ok)) newErrors.password       = 'Password too weak';
+    if (!confirmOk)                    newErrors.confirmPassword = 'Passwords must match';
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length) return;
 
     try {
-      setSubmitting(true);
-      setErr('');
-      
-      const result = await register({
-        username: username.trim(),
-        email: email.trim(),
-        password
+      await register({
+        username: data.username,
+        email:    data.email,
+        password: data.password
       });
-
-      // Registration successful - redirect to verify email page
-      navigate('/verify-email', { 
-        state: { 
-          email: email.trim(),
-          message: result.message || 'Registration successful! Please check your email to verify your account.'
-        }
+      // Navigate to verification page with email
+      navigate('/login-verification', { 
+        state: { emailOrUsername: data.email } 
       });
-    } catch (error) {
-      setErr(error.message || 'Registration failed. Please try again.');
-    } finally {
-      setSubmitting(false);
+    } catch (err) {
+      setErrors({ api: err.message });
     }
-  }
+  };
 
   return (
     <div className="register-container">
-      <form className="register-form" onSubmit={onSubmit} noValidate>
-        <h2>Create Account</h2>
+      <form className="register-form" onSubmit={handleSubmit}>
+        <Link to="/" className="home-button">← Home</Link>
+        <h2>Create an Account</h2>
+        {errors.api && <p className="error">{errors.api}</p>}
 
-        <label htmlFor="username">Username</label>
+        <label>Username</label>
         <input
-          id="username"
+          name="username"
           type="text"
-          autoComplete="username"
-          required
-          placeholder="Choose a username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
+          value={data.username}
+          onChange={handleChange}
+          placeholder="Enter username (3-20 characters)"
         />
+        {errors.username && <p className="error">{errors.username}</p>}
 
-        <label htmlFor="email">Email</label>
+        <label>Email</label>
         <input
-          id="email"
+          name="email"
           type="email"
-          autoComplete="email"
-          required
-          placeholder="Enter your email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
+          value={data.email}
+          onChange={handleChange}
         />
+        {errors.email && <p className="error">{errors.email}</p>}
 
-        <label htmlFor="password">Password</label>
+        <label>Password</label>
         <div className="password-wrapper">
           <input
-            id="password"
-            type={showPw ? 'text' : 'password'}
-            autoComplete="new-password"
-            required
-            placeholder="Create a strong password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            value={data.password}
+            onChange={handleChange}
           />
-          <button
-            type="button"
+          <span
             className="toggle-visibility"
-            onClick={() => setShowPw(v => !v)}
-            aria-label={showPw ? 'Hide password' : 'Show password'}
+            onClick={() => setShowPassword((v) => !v)}
           >
-            {showPw ? <FaEyeSlash /> : <FaEye />}
-          </button>
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+        {errors.password && <p className="error">{errors.password}</p>}
+
+        <label style={{ marginTop: '0.8rem' }}>Confirm Password</label>
+        <div className="password-wrapper">
+          <input
+            name="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={data.confirmPassword}
+            onChange={handleChange}
+          />
+          <span
+            className="toggle-visibility"
+            onClick={() => setShowConfirmPassword((v) => !v)}
+          >
+            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+        {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
+
+        <div className="strength-bar-wrapper">
+          <div
+            className="strength-bar"
+            style={{
+              width:          `${strength.percent}%`,
+              backgroundColor: strength.color
+            }}
+          />
         </div>
 
-        {password && (
-          <>
-            <div className="strength-bar-wrapper">
-              <div 
-                className="strength-bar"
-                style={{
-                  width: `${(passwordStrength / 5) * 100}%`,
-                  backgroundColor: strengthColors[passwordStrength - 1] || '#ddd'
-                }}
-              />
-            </div>
-            <div style={{ fontSize: '0.85rem', marginTop: '4px', color: strengthColors[passwordStrength - 1] || '#666' }}>
-              Strength: {strengthLabels[passwordStrength - 1] || 'Very Weak'}
-            </div>
-            <ul className="password-checklist">
-              <li className={password.length >= 8 ? 'valid' : ''}>At least 8 characters</li>
-              <li className={/[A-Z]/.test(password) ? 'valid' : ''}>Uppercase letter</li>
-              <li className={/[a-z]/.test(password) ? 'valid' : ''}>Lowercase letter</li>
-              <li className={/\d/.test(password) ? 'valid' : ''}>Number</li>
-              <li className={/[^\w\s]/.test(password) ? 'valid' : ''}>Special character</li>
-            </ul>
-          </>
-        )}
+        <ul className="password-checklist">
+          {reqStatus.map((r, i) => (
+            <li key={i} className={r.ok ? 'valid' : ''}>
+              {r.label}
+            </li>
+          ))}
+          <li className={confirmOk ? 'valid' : ''}>
+            Passwords match
+          </li>
+        </ul>
 
-        {err && <div className="error">{err}</div>}
-
-        <button className="register-btn" type="submit" disabled={submitting}>
-          {submitting ? 'Creating Account...' : 'Create Account'}
+        <button
+          type="submit"
+          className="register-btn"
+          disabled={!isFormValid}
+        >
+          Register
         </button>
-
-        <div className="muted-links" style={{ textAlign: 'center', marginTop: '1rem' }}>
-          <span>Already have an account? <Link to="/signin">Sign In</Link></span>
-        </div>
       </form>
     </div>
   );
