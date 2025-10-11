@@ -1,6 +1,9 @@
 // src/services/api/api.js
 const API_BASE = import.meta.env.VITE_API_BASE;
 const MOCK_MODE = String(import.meta.env.VITE_MOCK_MODE).toLowerCase() === 'true';
+import React, { useState } from 'react';
+import { register } from '../api/auth';
+
 
 if (!API_BASE) {
   console.error('VITE_API_BASE is missing. Create .env at project root and rebuild.');
@@ -51,3 +54,7 @@ export const api = {
 };
 
 export const wakeServer = () => apiFetch('/health').catch(() => {});
+
+export default function RegisterPage() {         
+  
+}

@@ -22,6 +22,7 @@ import RequestPasswordResetPage from './Pages/RequestPasswordResetPage';
 import ForgotEmailPage from './Pages/ForgotEmailPage';
 import ResetPasswordPage from './Pages/ResetPasswordPage';
 import LoginVerificationPage from './Pages/LoginVerificationPage';
+import RegisterPage from './Pages/RegisterPage.jsx';
 
 /**
  * Main App component that sets up routing and authentication context
