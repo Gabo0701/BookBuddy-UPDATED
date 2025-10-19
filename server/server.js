@@ -31,9 +31,9 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// TODO: mount your real API routes here
-// import apiRouter from './routes/index.js';
-// app.use('/api', apiRouter);
+// Mount API routes
+import apiRouter from './routes/index.js';
+app.use('/api', apiRouter);
 
 const PORT = process.env.PORT || 5000;
 

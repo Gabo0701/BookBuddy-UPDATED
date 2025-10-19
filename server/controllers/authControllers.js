@@ -614,6 +614,7 @@ const processAccountDeletion = async (userId) => {
 // POST /api/v1/auth/send-login-verification
 export async function sendLoginVerification(req, res, next) {
   try {
+    console.log('🔍 Send verification request received:', req.body);
     const { email: emailOrUsername } = req.body;
     
     // Determine if input is email or username
@@ -629,6 +630,7 @@ export async function sendLoginVerification(req, res, next) {
 
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('🔢 Generated verification code:', code, 'for email:', user.email);
     
     // Delete existing codes for this email
     await VerificationCode.deleteMany({ email: user.email, type: 'login' });
@@ -639,6 +641,7 @@ export async function sendLoginVerification(req, res, next) {
       code,
       type: 'login'
     });
+    console.log('💾 Code saved to database for:', user.email);
 
     // Send email
     await sendMail({
