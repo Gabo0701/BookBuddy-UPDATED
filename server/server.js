@@ -31,6 +31,11 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Server is working', timestamp: new Date().toISOString() });
+});
+
 // Mount API routes
 import apiRouter from './routes/index.js';
 app.use('/api', apiRouter);
