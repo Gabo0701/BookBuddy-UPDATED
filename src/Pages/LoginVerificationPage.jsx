@@ -25,12 +25,15 @@ const LoginVerificationPage = () => {
 
     setSendingCode(true);
     setError('');
+    console.log('Sending verification code to:', emailOrUsername);
 
     try {
-      await sendLoginVerification(emailOrUsername);
+      const result = await sendLoginVerification(emailOrUsername);
+      console.log('Verification code sent successfully:', result);
       setCodeSent(true);
     } catch (err) {
-      setError(err.message);
+      console.error('Failed to send verification code:', err);
+      setError(err.message || 'Failed to send verification code');
     } finally {
       setSendingCode(false);
     }

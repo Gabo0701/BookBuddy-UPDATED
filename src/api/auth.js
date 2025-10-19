@@ -12,24 +12,38 @@ const BASE = `${API_BASE}/auth`;
 
 // Generic request helper
 async function request(path, { method = 'GET', headers = {}, body } = {}) {
-  const res = await fetch(`${BASE}${path}`, {
-    method,
-    credentials: 'include', // keep if you set cookies on the API; otherwise safe
-    headers: { 'Content-Type': 'application/json', ...headers },
-    body,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  
+  try {
+    const res = await fetch(`${BASE}${path}`, {
+      method,
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body,
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
 
-  const text = await res.text();
-  let data = null;
-  try { data = text ? JSON.parse(text) : null; } catch {
-    throw new Error(`Expected JSON, got: ${text.slice(0, 200)}`);
-  }
+    const text = await res.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch {
+      throw new Error(`Expected JSON, got: ${text.slice(0, 200)}`);
+    }
 
-  if (!res.ok) {
-    const msg = data?.error || data?.message || res.statusText;
-    throw new Error(msg);
+    if (!res.ok) {
+      const msg = data?.error || data?.message || res.statusText;
+      throw new Error(msg);
+    }
+    return data;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout - please try again');
+    }
+    throw error;
   }
-  return data;
 }
 
 // ---- Auth functions ----
