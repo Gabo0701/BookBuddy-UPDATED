@@ -24,13 +24,9 @@ export default async function sendMail({ to, subject, html, text }) {
       host: process.env.SMTP_HOST,                    // SMTP server hostname
       port: Number(process.env.SMTP_PORT || 587),     // SMTP port (587 for TLS)
       secure: false,                                  // Use TLS (not SSL)
-      requireTLS: true,                               // Force TLS
       auth: { 
         user: process.env.SMTP_USER,                 // SMTP username
         pass: process.env.SMTP_PASS                  // SMTP password
-      },
-      tls: {
-        rejectUnauthorized: false                     // Accept self-signed certificates
       }
     });
   } else {
