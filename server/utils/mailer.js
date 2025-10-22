@@ -45,19 +45,36 @@ export default async function sendMail({ to, subject, html, text }) {
     });
   }
 
-  // Send the email with configured transporter
-  const info = await transporter.sendMail({
-    from: process.env.MAIL_FROM || 'BookBuddy <no-reply@bookbuddy.local>', // Sender address
-    to,       // Recipient address
-    subject,  // Email subject
-    html,     // HTML email body
-    text      // Plain text email body (fallback)
-  });
+  try {
+    // Send the email with configured transporter
+    const info = await transporter.sendMail({
+      from: process.env.MAIL_FROM || 'BookBuddy <no-reply@bookbuddy.local>', // Sender address
+      to,       // Recipient address
+      subject,  // Email subject
+      html,     // HTML email body
+      text      // Plain text email body (fallback)
+    });
 
-  // Development: Log preview URL for Ethereal Email testing
-  // Allows developers to view sent emails in browser
-  if (nodemailer.getTestMessageUrl) {
-    const url = nodemailer.getTestMessageUrl(info);
-    if (url) console.log('✉️  Preview email:', url);
+    console.log('✅ Email sent successfully:', {
+      messageId: info.messageId,
+      to: to,
+      subject: subject
+    });
+
+    // Development: Log preview URL for Ethereal Email testing
+    if (nodemailer.getTestMessageUrl) {
+      const url = nodemailer.getTestMessageUrl(info);
+      if (url) console.log('✉️  Preview email:', url);
+    }
+
+    return info;
+  } catch (error) {
+    console.error('❌ Email sending failed:', {
+      error: error.message,
+      code: error.code,
+      to: to,
+      subject: subject
+    });
+    throw error;
   }
 }

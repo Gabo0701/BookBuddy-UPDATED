@@ -55,6 +55,11 @@ app.use(sanitize()); // Sanitize input to prevent NoSQL injection
 // Rate limiting middleware
 app.use(globalLimiter); // Apply global rate limiting to all routes
 
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Server is working', timestamp: new Date().toISOString() });
+});
+
 // API routes with versioning
 app.use('/api/v1', healthRoutes); // Health check endpoints
 app.use('/api/v1/auth', authLimiter, authRoutes); // Authentication routes with stricter rate limiting

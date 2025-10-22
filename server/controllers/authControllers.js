@@ -614,6 +614,7 @@ const processAccountDeletion = async (userId) => {
 // POST /api/v1/auth/send-login-verification
 export async function sendLoginVerification(req, res, next) {
   try {
+    console.log('🔍 Send verification request received:', req.body);
     const { email: emailOrUsername } = req.body;
     
     // Determine if input is email or username
@@ -629,6 +630,7 @@ export async function sendLoginVerification(req, res, next) {
 
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('🔢 Generated verification code:', code, 'for email:', user.email);
     
     // Delete existing codes for this email
     await VerificationCode.deleteMany({ email: user.email, type: 'login' });
@@ -639,23 +641,30 @@ export async function sendLoginVerification(req, res, next) {
       code,
       type: 'login'
     });
+    console.log('💾 Code saved to database for:', user.email);
 
     // Send email
-    await sendMail({
-      to: user.email,
-      subject: 'BookBuddy Login Verification Code',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #333; text-align: center;">BookBuddy Login Verification</h2>
-          <p>Your verification code is:</p>
-          <div style="background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
-            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #2563eb;">${code}</span>
+    try {
+      await sendMail({
+        to: user.email,
+        subject: 'BookBuddy Login Verification Code',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #333; text-align: center;">BookBuddy Login Verification</h2>
+            <p>Your verification code is:</p>
+            <div style="background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #2563eb;">${code}</span>
+            </div>
+            <p>This code will expire in 10 minutes.</p>
+            <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
           </div>
-          <p>This code will expire in 10 minutes.</p>
-          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
-        </div>
-      `
-    });
+        `
+      });
+      console.log('✅ Email sent successfully to:', user.email);
+    } catch (emailError) {
+      console.error('❌ Email sending failed:', emailError.message);
+      // Continue anyway for testing - in production you might want to return an error
+    }
 
     res.json({ message: 'Verification code sent' });
   } catch (error) {

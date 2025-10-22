@@ -50,7 +50,9 @@ export const getBooks = async (req, res) => {
 export const addBook = async (req, res) => {
   try {
     const { title, author, key, coverId, olid } = req.body;
-    console.log('Adding book:', { title, author, key, userId: req.user.id });
+    console.log('🔍 Adding book request received:', { title, author, key, userId: req.user?.id });
+    console.log('📝 Request body:', req.body);
+    console.log('👤 User info:', req.user);
     
     // Check if book already exists for this user
     const existingBook = await Book.findOne({ key, user: req.user.id });
@@ -69,7 +71,8 @@ export const addBook = async (req, res) => {
     });
     
     const savedBook = await newBook.save();
-    console.log('Book saved successfully:', savedBook);
+    console.log('✅ Book saved successfully to MongoDB:', savedBook);
+    console.log('📊 Database info - User ID:', savedBook.user, 'Book ID:', savedBook._id);
     res.status(201).json(savedBook);
   } catch (error) {
     console.error('Error saving book:', error);

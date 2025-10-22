@@ -4,4 +4,4 @@
 process.env.NODE_OPTIONS = '--openssl-legacy-provider';
 
 // Import and start the server
-import('./server/server.js').catch(console.error);
+import('./server/server-robust.js').catch(console.error);
